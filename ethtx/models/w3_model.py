@@ -75,7 +75,7 @@ class W3Transaction(BaseModel):
     gas: int
     gasPrice: int
     hash: THexBytes
-    input: str
+    input: THexBytes
     nonce: int
     r: THexBytes
     s: THexBytes
@@ -166,14 +166,14 @@ class W3CallTree(BaseModel):
     chain_id: str
     type: str
     from_address: str
-    to_address: Optional[str]
+    to_address: Optional[str] = None
     input: str
     output: str
-    value: Optional[str]
-    time: Optional[str]
-    gas: Optional[str]
-    gasUsed: Optional[str]
-    error: Optional[str]
+    value: Optional[str] = None
+    time: Optional[str] = None
+    gas: Optional[str] = None
+    gasUsed: Optional[str] = None
+    error: Optional[str] = None
     calls: list = []
 
     def to_object(self) -> Call:
