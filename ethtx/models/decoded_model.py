@@ -23,7 +23,7 @@ from decimal import Decimal, getcontext
 from pydantic import validator
 
 from ethtx.models.base_model import BaseModel
-from ethtx.models.objects_model import BlockMetadata
+from ethtx.models.objects_model import BlockMetadata, TransactionMetadata
 from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 
 
@@ -117,7 +117,7 @@ class DecodedBalance(BaseModel):
 
 class DecodedTransaction(BaseModel):
     block_metadata: BlockMetadata
-    metadata: DecodedTransactionMetadata
+    metadata: TransactionMetadata
     events: List[DecodedEvent]
     calls: Optional[DecodedCall]
     transfers: List[DecodedTransfer]
