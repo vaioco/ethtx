@@ -55,11 +55,11 @@ class TransactionMetadata(BaseModel):
     success: bool
 
     # for future use
-    gas_refund: Optional[int]
-    return_value: Optional[str]
-    exception_error: Optional[str]
-    exception_error_type: Optional[str]
-    revert_reason: Optional[str]
+    gas_refund: Optional[int] = None
+    return_value: Optional[str] = None
+    exception_error: Optional[str] = None
+    exception_error_type: Optional[str] = None
+    revert_reason: Optional[str] = None
 
     @staticmethod
     def from_raw(w3transaction, w3receipt) -> TransactionMetadata:
@@ -67,12 +67,12 @@ class TransactionMetadata(BaseModel):
 
 
 class Event(BaseModel):
-    contract: Optional[str]
+    contract: Optional[str] = None
     topics: List[str]
-    log_data: Optional[str]
-    log_index: Optional[int]
+    log_data: Optional[str] = None
+    log_index: Optional[int] = None
 
-    call_id: Optional[str]
+    call_id: Optional[str] = None
 
     @staticmethod
     def from_raw(w3log) -> Event:
@@ -81,25 +81,25 @@ class Event(BaseModel):
 
 class Call(BaseModel):
     call_type: str
-    call_gas: Optional[int]
+    call_gas: Optional[int] = None
     from_address: str
-    to_address: Optional[str]
+    to_address: Optional[str] = None
     call_value: int
     call_data: str
     return_value: str
-    gas_used: Optional[int]
+    gas_used: Optional[int] = None
     status: bool
-    error: Optional[str]
+    error: Optional[str] = None
     subcalls: List[Call] = Field(default_factory=list)
 
     # for future use
-    call_id: Optional[str]
-    created_address: Optional[str]
-    gas_refund: Optional[int]
-    exception_error: Optional[str]
-    exception_error_type: Optional[str]
-    revert_reason: Optional[str]
-    success: Optional[bool]
+    call_id: Optional[str] = None
+    created_address: Optional[str] = None
+    gas_refund: Optional[int] = None
+    exception_error: Optional[str] = None
+    exception_error_type: Optional[str] = None
+    revert_reason: Optional[str] = None
+    success: Optional[bool] = None
 
     @staticmethod
     def from_raw(w3calltree) -> Call:

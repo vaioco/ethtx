@@ -25,8 +25,8 @@ if TYPE_CHECKING:
 
 
 class TransformationSemantics(BaseModel):
-    transformed_name: Optional[str]
-    transformed_type: Optional[str]
+    transformed_name: Optional[str] = None
+    transformed_type: Optional[str] = None
     transformation: str = ""
 
 

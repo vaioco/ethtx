@@ -28,22 +28,22 @@ from ethtx.models.semantics_model import AddressSemantics, ERC20Semantics
 
 
 class AddressInfo(BaseModel):
-    address: Optional[str]
+    address: Optional[str] = None
     name: str
-    badge: Optional[str]
+    badge: Optional[str] = None
 
 
 class DecodedTransactionMetadata(BaseModel):
-    chain_id: Optional[str]
+    chain_id: Optional[str] = None
     tx_hash: str
-    block_number: Optional[int]
-    block_hash: Optional[str]
-    timestamp: Optional[datetime]
-    gas_price: Optional[int]
-    from_address: Optional[str]
-    to_address: Optional[str]
-    sender: Optional[AddressInfo]
-    receiver: Optional[AddressInfo]
+    block_number: Optional[int] = None
+    block_hash: Optional[str] = None
+    timestamp: Optional[datetime] = None
+    gas_price: Optional[int] = None
+    from_address: Optional[str] = None
+    to_address: Optional[str] = None
+    sender: Optional[AddressInfo] = None
+    receiver: Optional[AddressInfo] = None
     tx_index: int
     tx_value: int
     gas_limit: int
