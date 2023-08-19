@@ -50,7 +50,7 @@ class DecodedTransactionMetadata(BaseModel):
     gas_used: int
     success: bool
 
-
+import sys, math
 class Argument(BaseModel):
     name: str
     type: str
@@ -61,10 +61,21 @@ class Argument(BaseModel):
         """Method dealing with the case of large int and float by handling them as Decimal. Avoids loss of precision
         in digits.
         """
-        if isinstance(v, int) or isinstance(v, float):
-            getcontext().prec = 256
-            return Decimal(v)
-        return v
+        lres = []
+        def _helper(v):
+            if isinstance(v, int) or isinstance(v, float):
+                getcontext().prec = 256
+                d = Decimal(v)
+                return d
+            return v
+        if isinstance(v, list):
+            print(v, len(v))
+            for item in v:
+                r = _helper(item)
+                lres.append(r)
+            print("porcodio una lista di merda")
+            return lres
+        return _helper(v)
 
 
 class DecodedEvent(BaseModel):
