@@ -30,6 +30,7 @@ from ..models.semantics_model import FunctionSemantics
 from ..models.w3_model import W3Block, W3Transaction, W3Receipt, W3CallTree, W3Log
 from ..semantics.standards import erc20
 from ..utils.cache_tools import cache
+from hexbytes import HexBytes
 
 log = logging.getLogger(__name__)
 
@@ -188,13 +189,13 @@ class Web3Provider(NodeDataProvider):
         raw_tx: TxData = chain.eth.get_transaction(HexStr(tx_hash))
         transaction = W3Transaction(
             chain_id=chain_id or self.default_chain,
-            blockHash=raw_tx.blockHash,
+            blockHash=HexBytes(raw_tx.blockHash),
             blockNumber=raw_tx.blockNumber,
             from_address=raw_tx["from"],
             gas=raw_tx.gas,
             gasPrice=raw_tx.gasPrice,
             hash=raw_tx.hash,
-            input=raw_tx.input,
+            input=HexBytes(raw_tx.input),
             nonce=raw_tx.nonce,
             r=raw_tx.r,
             s=raw_tx.s,
@@ -467,7 +468,6 @@ class Web3Provider(NodeDataProvider):
         w3transaction = self.get_transaction(tx_hash, chain_id)
         w3receipt = self.get_receipt(tx_hash, chain_id)
         w3calltree = self.get_calls(tx_hash, chain_id)
-
         return Transaction.from_raw(
             w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
         )
@@ -481,8 +481,9 @@ class Web3Provider(NodeDataProvider):
         def prep_raw_dict(dct: [AttributeDict, Dict]):
             if not isinstance(dct, dict):
                 dct = dct.__dict__
-            dct["from_address"] = dct.pop("from", None)
-            dct["to_address"] = dct.pop("to", None)
+            dct["from_address"] = dct.pop("from", "")
+            dct["to_address"] = dct.pop("to", "")
+            dct["type"] = dct.pop("type", "")
             dct["input"] = dct.pop("input", "0x")
             dct["output"] = dct.pop("output", "0x")
             calls = dct.pop("calls", [])
