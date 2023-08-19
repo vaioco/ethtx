@@ -89,8 +89,8 @@ class AddressSemantics(BaseModel):
     name: str
     is_contract: bool
     contract: ContractSemantics
-    standard: Optional[str]
-    erc20: Optional[ERC20Semantics]
+    standard: Optional[str] = None
+    erc20: Optional[ERC20Semantics] = None
 
     class Config:
         allow_mutation = True
