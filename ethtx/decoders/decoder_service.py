@@ -40,12 +40,64 @@ class DecoderService:
         self.web3provider: NodeDataProvider = web3provider
         self.default_chain: str = default_chain
 
+    def test_decode_transaction(
+        self, chain_id: str, tx_hash: str, resp : dict, recreate_semantics: bool = False,
+    ) -> DecodedTransaction:
+        # verify the transaction hash
+        tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
+        print(f"test decoding tx {tx_hash} - {type(resp)}")
+        
+        chain_id = chain_id or self.default_chain
+
+        self.semantic_decoder.repository.record()
+        # read a raw transaction from a node
+        transaction = self.web3provider.test_get_full_transaction(
+            tx_hash=tx_hash, chain_id=chain_id, resp=resp
+        )
+        # read a raw block from a node
+        block = Block.from_raw(
+            w3block=self.web3provider.get_block(
+                transaction.metadata.block_number, chain_id
+            ),
+            chain_id=chain_id,
+        )
+
+        # prepare lists of delegations to properly decode delegate-calling contracts
+        delegations = self.get_delegations(transaction.root_call)
+        proxies = self.get_proxies(delegations, chain_id)
+
+        # decode transaction using ABI
+        abi_decoded_tx = self.abi_decoder.decode_transaction(
+            block=block, transaction=transaction, proxies=proxies, chain_id=chain_id
+        )
+
+        # decode transaction using additional semantics
+        semantically_decoded_tx = self.semantic_decoder.decode_transaction(
+            block=block.metadata,
+            transaction=abi_decoded_tx,
+            proxies=proxies,
+            chain_id=chain_id,
+        )
+
+        used_semantics = self.semantic_decoder.repository.end_record()
+        log.info(
+            "Semantics used in decoding %s: %s",
+            tx_hash,
+            ", ".join(set(used_semantics)) if used_semantics else "",
+        )
+
+        if recreate_semantics:
+            self.semantic_decoder.repository.delete_semantics(chain_id, used_semantics)
+            return self.decode_transaction(chain_id, tx_hash, False)
+
+        return semantically_decoded_tx
+
     def decode_transaction(
         self, chain_id: str, tx_hash: str, recreate_semantics: bool = False
     ) -> DecodedTransaction:
         # verify the transaction hash
         tx_hash = tx_hash if tx_hash.startswith("0x") else "0x" + tx_hash
-
+        print(f"decoding tx {tx_hash}")
         chain_id = chain_id or self.default_chain
 
         self.semantic_decoder.repository.record()

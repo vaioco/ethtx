@@ -64,6 +64,14 @@ class EthTxDecoders:
         self.abi_decoder: ABIDecoder = decoder_service.abi_decoder
         self.semantic_decoder: SemanticDecoder = decoder_service.semantic_decoder
 
+    def test_decode_transaction(
+        self, tx_hash: str, response : dict, chain_id: str = None, recreate_semantics: bool = False
+    ) -> DecodedTransaction:
+        assert_tx_hash(tx_hash)
+        return self._decoder_service.test_decode_transaction(
+            chain_id, tx_hash, response, recreate_semantics
+    )
+
     def decode_transaction(
         self, tx_hash: str, chain_id: str = None, recreate_semantics: bool = False
     ) -> DecodedTransaction:

@@ -76,6 +76,11 @@ class NodeDataProvider:
     ) -> TransactionMetadata:
         ...
 
+    def test_get_full_transaction(
+        self, tx_hash: str, resp: dict, chain_id: Optional[str] = None
+    ) -> Transaction:
+        ...
+
     def get_full_transaction(
         self, tx_hash: str, chain_id: Optional[str] = None
     ) -> Transaction:
@@ -256,10 +261,16 @@ class Web3Provider(NodeDataProvider):
         tracer = self._get_custom_calls_tracer()
         response = chain.manager.request_blocking(
             "debug_traceTransaction", [tx_hash, {"tracer": tracer, "timeout": "60s"}]
+            # "debug_traceTransaction", [tx_hash]
         )
 
         return self._create_call_from_debug_trace_tx(
             tx_hash, chain_id or self.default_chain, response
+        )
+    
+    def test_traceTransactionResp(self, tx_hash: str, resp : dict, chain_id: Optional[str] = None):
+        return self._create_call_from_debug_trace_tx(
+            tx_hash, chain_id or self.default_chain, resp
         )
 
     # get the contract bytecode hash from the node
@@ -463,6 +474,15 @@ class Web3Provider(NodeDataProvider):
 
         return None
 
+    
+    def test_get_full_transaction(self, tx_hash: str, resp : dict, chain_id: Optional[str] = None):
+        w3transaction = self.get_transaction(tx_hash, chain_id)
+        w3receipt = self.get_receipt(tx_hash, chain_id)
+        w3calltree = self.test_traceTransactionResp(tx_hash=tx_hash, chain_id=chain_id, resp=resp)
+        return Transaction.from_raw(
+            w3transaction=w3transaction, w3receipt=w3receipt, w3calltree=w3calltree
+        )
+
     @cache
     def get_full_transaction(self, tx_hash: str, chain_id: Optional[str] = None):
         w3transaction = self.get_transaction(tx_hash, chain_id)
@@ -478,6 +498,7 @@ class Web3Provider(NodeDataProvider):
     def _create_call_from_debug_trace_tx(
         self, tx_hash: str, chain_id: str, input_rpc: AttributeDict
     ) -> W3CallTree:
+
         def prep_raw_dict(dct: [AttributeDict, Dict]):
             if not isinstance(dct, dict):
                 dct = dct.__dict__
@@ -488,11 +509,13 @@ class Web3Provider(NodeDataProvider):
             dct["output"] = dct.pop("output", "0x")
             calls = dct.pop("calls", [])
             return dct, calls
-
-        obj = input_rpc.__dict__
+        if isinstance(input_rpc, AttributeDict):
+            obj = input_rpc.__dict__
+        elif isinstance(input_rpc, dict):
+            obj = input_rpc
         tmp_call_tree = []
-
         w3input, main_parent_calls = prep_raw_dict(obj)
+        # print(f"got calls {main_parent_calls}")
         main_parent = W3CallTree(tx_hash=tx_hash, chain_id=chain_id, **w3input)
         for main_parent_call in main_parent_calls:
             w3input, main_parent_calls = prep_raw_dict(main_parent_call)
