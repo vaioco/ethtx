@@ -50,7 +50,6 @@ class DecodedTransactionMetadata(BaseModel):
     gas_used: int
     success: bool
 
-import sys, math
 class Argument(BaseModel):
     name: str
     type: str
@@ -69,11 +68,9 @@ class Argument(BaseModel):
                 return d
             return v
         if isinstance(v, list):
-            print(v, len(v))
             for item in v:
                 r = _helper(item)
                 lres.append(r)
-            print("porcodio una lista di merda")
             return lres
         return _helper(v)
 
